@@ -1,0 +1,19 @@
+spring:
+  datasource:  # 配置mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.180.45:3306/user?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: 1234567890
+
+  jpa:
+    #hibernate:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    ddl-auto: update
+    show-sql: true
+# jwt:
+#   secret: your-secret-key
+    
+server:
+  port: 8080  # 默认端口
+  
+
