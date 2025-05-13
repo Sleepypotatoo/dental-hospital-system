@@ -9,10 +9,20 @@ spring:
     #hibernate:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     ddl-auto: update
+    properties:
+      hibernate.format_sql: true
     show-sql: true
 # jwt:
 #   secret: your-secret-key
     
+logging:
+  level:
+    root: INFO
+    dentist.dentist.UserService: DEBUG # 按需调整日志级别
+  file:
+    name: logs/app.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 server:
   port: 8080  # 默认端口
   

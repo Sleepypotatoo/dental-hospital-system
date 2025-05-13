@@ -134,6 +134,13 @@
      <artifactId>assertj-core</artifactId>
      <version>3.13.2</version>
    </dependency>
+
+	<dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.30</version> <!-- 使用最新版本 -->
+        <scope>provided</scope>
+    </dependency>
  </dependencies>
 	
 
@@ -142,7 +149,7 @@
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.2.3</version> <!-- 使用兼容 JUnit 5 的版本 -->
+            <version>3.2.5</version> <!-- 使用兼容 JUnit 5 的版本 -->
             <configuration>
                 <testFailureIgnore>true</testFailureIgnore>
             </configuration>
@@ -152,6 +159,11 @@
                     <groupId>org.junit.platform</groupId>
                     <artifactId>junit-platform-surefire-provider</artifactId>
                     <version>1.3.2</version>
+                </dependency>
+				<dependency>
+                    <groupId>org.apache.maven.surefire</groupId>
+                    <artifactId>surefire-api</artifactId>
+                    <version>3.2.5</version>
                 </dependency>
             </dependencies>
         </plugin>

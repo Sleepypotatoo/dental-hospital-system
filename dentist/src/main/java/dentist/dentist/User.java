@@ -7,12 +7,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 
 //用户实体类，映射数据库表 user，存储用户信息。
 @Entity
 @Table(name = "user")
+@Getter // 添加此注解
+@Setter
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
