@@ -12,6 +12,12 @@ spring:
     properties:
       hibernate.format_sql: true
     show-sql: true
+  mvc:
+    static-path-pattern: /**    # 允许所有静态资源路径
+  web:
+    resources:
+      static-locations: classpath:/static/  # 静态资源目录
+
 jwt:
   secret: "123"
     

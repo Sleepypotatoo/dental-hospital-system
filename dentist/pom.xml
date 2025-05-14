@@ -36,6 +36,16 @@
         <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
     </repository>
     </repositories>
+	<pluginRepositories>
+    <pluginRepository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </pluginRepository>
+    <pluginRepository>
+        <id>alimaven</id>
+        <url>https://maven.aliyun.com/repository/public</url>
+    </pluginRepository>
+</pluginRepositories>
 	<dependencies>
 
 		<dependency>
@@ -148,23 +158,18 @@
 <!-- pom.xml -->
 <build>
     <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>3.2.7</version> <!-- 升级到最新稳定版本 -->
-            <dependencies>
-                <!-- 显式引入 JUnit 5 支持 -->
-                <dependency>
-                    <groupId>org.junit.platform</groupId>
-                    <artifactId>junit-platform-surefire-provider</artifactId>
-                    <version>1.10.2</version> <!-- 与 JUnit 5.10.2 兼容 -->
-                </dependency>
-            </dependencies>
-            <configuration>
-                <testFailureIgnore>true</testFailureIgnore>
-            </configuration>
-        </plugin>
-    </plugins>
+      <plugin>
+         <groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId>
+     </plugin>
+     <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-surefire-plugin</artifactId>
+         <version>3.5.3</version>
+         <configuration>
+              <skipTests>true</skipTests>
+         </configuration>
+     </plugin>
+   </plugins>
 </build>
 
 </project>
