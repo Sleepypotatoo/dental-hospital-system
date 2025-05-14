@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>医院管理系统登录页面</title>
+    <link rel="stylesheet" href="css/login.css">
+    <style>
+        /* 这里可以添加一些额外的内联样式 */
+        /* 定义小眼睛图标样式 */
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            z-index: 10;
+            color: #999;
+            transition: color 0.3s;
+        }
+        
+        .password-toggle:hover {
+            color: #003366;
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-group input {
+            padding-right: 30px; /* 为图标留出空间 */
+        }
+    </style>
+</head>
+
+<body style="background: url('image/background.jpg'); background-size: cover; background-repeat: no-repeat;">
+    <script src="js/flexible.js"></script>
+    <!-- 新增遮罩层 -->
+    <div id="overlay"></div>
+    <div class="login-container">
+        <div class="login">
+            <h2>医院管理系统</h2>
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username">账号</label>
+                    <input type="text" id="username" placeholder="请输入账号" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                    <i class="password-toggle" id="toggleLoginPassword" data-visible="false">👁️</i>
+                </div>
+                <div class="input-group">
+                    <label for="userType">身份</label>
+                    <select id="userType">
+                        <option value="patient">患者</option>
+                        <option value="doctor">医生</option>
+                        <option value="admin">管理员</option>
+                    </select>
+                </div>
+                <button type="submit">登录</button>
+                <button type="button" id="registerBtn">注册</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 新增登录错误弹窗 -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <p>账号或密码错误！</p>
+            <!-- 添加确认按钮 -->
+            <button id="confirmBtn">确认</button>
+        </div>
+    </div>
+
+    <!-- 新增注册弹窗 -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <h2>患者注册</h2>
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="regUsername">账号</label>
+                    <input type="text" id="regUsername" placeholder="请输入账号" required>
+                </div>
+                <div class="input-group">
+                    <label for="regPassword">密码</label>
+                    <input type="password" id="regPassword" placeholder="请输入密码" required>
+                    <i class="password-toggle" id="toggleRegisterPassword" data-visible="false">👁️</i>
+                </div>
+                <div class="input-group">
+                    <label for="regName">姓名</label>
+                    <input type="text" id="regName" placeholder="请输入姓名" required>
+                </div>
+                <div class="input-group">
+                    <label for="regGender">性别</label>
+                    <input type="text" id="regGender" placeholder="请输入性别">
+                </div>
+                <div class="input-group">
+                    <label for="regBirthdate">出生日期</label>
+                    <input type="date" id="regBirthdate" required>
+                </div>
+                <div class="input-group">
+                    <label for="regPhone">手机号</label>
+                    <input type="text" id="regPhone" placeholder="请输入手机号">
+                </div>
+                <div class="input-group">
+                    <label for="regEmail">邮箱</label>
+                    <input type="email" id="regEmail" placeholder="请输入邮箱" required>
+                </div>
+                <div class="input-group">
+                    <label for="regIDCard">身份证号</label>
+                    <input type="text" id="regIDCard" placeholder="请输入身份证号">
+                </div>
+                <button type="submit">提交</button>
+                <button type="button" id="closeRegisterModalBtn">关闭</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 可根据环境修改 API 基础地址
+        const API_BASE_URL = 'http://localhost:8080';
+
+        // 获取表单和弹窗元素
+        const loginForm = document.getElementById('loginForm');
+        const errorModal = document.getElementById('errorModal');
+        const registerModal = document.getElementById('registerModal');
+        // 获取确认按钮
+        const confirmBtn = document.getElementById('confirmBtn');
+        // 获取注册按钮
+        const registerBtn = document.getElementById('registerBtn');
+        // 获取关闭注册弹窗按钮
+        const closeRegisterModalBtn = document.getElementById('closeRegisterModalBtn');
+        // 获取注册表单
+        const registerForm = document.getElementById('registerForm');
+        // 获取 body 元素
+        const body = document.body;
+        // 获取遮罩层元素
+        const overlay = document.getElementById('overlay');
+        // 获取密码输入框和切换图标
+        const loginPasswordInput = document.getElementById('password');
+        const toggleLoginPassword = document.getElementById('toggleLoginPassword');
+        const registerPasswordInput = document.getElementById('regPassword');
+        const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+
+        // 页面加载完成时，确保所有弹窗和遮罩层都隐藏
+        window.onload = function () {
+            errorModal.style.display = 'none';
+            registerModal.style.display = 'none';
+            overlay.style.display = 'none';
+            body.classList.remove('no-scroll');
+            
+            // 确保初始状态为密码不可见
+            updateEyeIcon(toggleLoginPassword, false);
+            updateEyeIcon(toggleRegisterPassword, false);
+        };
+
+        // 监听表单提交事件
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const userType = document.getElementById('userType').value;
+
+            const data = {
+                username: username,
+                password: password
+            };
+
+            // 发送登录请求到后端API
+            fetch(`${API_BASE_URL}/api/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                if (data === 'success') {
+                    // 登录成功，根据用户类型跳转到不同页面
+                    if (userType === 'doctor') {
+                        window.location.href = 'doctor.html';
+                    } else if (userType === 'patient') {
+                        window.location.href = 'patient.html';
+                    } else if (userType === 'admin') {
+                        window.location.href = 'admin.html';
+                    }
+                } else {
+                    // 登录失败，显示错误弹窗和遮罩层
+                    errorModal.style.display = 'block';
+                    overlay.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('登录请求出错:', error);
+                alert('登录请求出错，请稍后再试');
+            });
+        });
+
+        // 监听确认按钮点击事件
+        confirmBtn.addEventListener('click', function () {
+            errorModal.style.display = 'none';
+            overlay.style.display = 'none';
+        });
+
+        // 点击弹窗外部关闭弹窗和遮罩层
+        window.addEventListener('click', function (event) {
+            if (event.target === errorModal) {
+                errorModal.style.display = 'none';
+                overlay.style.display = 'none';
+            }
+            if (event.target === registerModal) {
+                registerModal.style.display = 'none';
+                overlay.style.display = 'none';
+                body.classList.remove('no-scroll'); // 移除隐藏滚动条的类
+            }
+        });
+
+        // 监听注册按钮点击事件
+        registerBtn.addEventListener('click', function () {
+            const userType = document.getElementById('userType').value;
+            if (userType === 'patient') {
+                registerModal.style.display = 'block';
+                overlay.style.display = 'block';
+                body.classList.add('no-scroll'); // 添加隐藏滚动条的类
+            } else {
+                alert('只有患者可以注册');
+            }
+        });
+
+        // 监听关闭注册弹窗按钮点击事件
+        closeRegisterModalBtn.addEventListener('click', function () {
+            registerModal.style.display = 'none';
+            overlay.style.display = 'none';
+            body.classList.remove('no-scroll'); // 移除隐藏滚动条的类
+        });
+
+        // 监听注册表单提交事件
+        registerForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            
+            // 收集注册表单数据
+            const data = {
+                username: document.getElementById('regUsername').value,
+                password: document.getElementById('regPassword').value,
+                name: document.getElementById('regName').value,
+                gender: document.getElementById('regGender').value,
+                birthdate: document.getElementById('regBirthdate').value,
+                phone: document.getElementById('regPhone').value,
+                email: document.getElementById('regEmail').value,
+                idCard: document.getElementById('regIDCard').value
+            };
+
+            // 发送注册请求到后端API
+            fetch(`${API_BASE_URL}/api/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP错误! 状态: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                if (data === 'success') {
+                    alert('注册成功');
+                    registerModal.style.display = 'none';
+                    overlay.style.display = 'none';
+                    body.classList.remove('no-scroll'); // 移除隐藏滚动条的类
+                } else {
+                    alert('注册失败');
+                }
+            })
+            .catch(error => {
+                console.error('注册请求出错:', error);
+                alert('注册请求出错，请稍后再试');
+            });
+        });
+
+        // 切换密码可见性
+        toggleLoginPassword.addEventListener('click', function () {
+            togglePasswordVisibility(loginPasswordInput, toggleLoginPassword);
+        });
+
+        toggleRegisterPassword.addEventListener('click', function () {
+            togglePasswordVisibility(registerPasswordInput, toggleRegisterPassword);
+        });
+
+        // 密码可见性切换函数
+        function togglePasswordVisibility(input, icon) {
+            const isVisible = icon.getAttribute('data-visible') === 'true';
+            input.type = isVisible ? 'password' : 'text';
+            icon.setAttribute('data-visible', !isVisible);
+            updateEyeIcon(icon, !isVisible);
+        }
+
+        // 更新眼睛图标
+        function updateEyeIcon(icon, isVisible) {
+            icon.textContent = isVisible ? '👁️' : '👁️‍🗨️';
+        }
+    </script>
+</body>
+
+</html>
