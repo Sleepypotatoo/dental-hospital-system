@@ -3,6 +3,8 @@ package dentist.dentist;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -11,7 +13,8 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-    private static final String SECRET_KEY = "123"; // 替换为实际密钥
+    @Value("${jwt.secret}") // 从 application.yml 读取密钥
+    private String SECRET_KEY; // 替换为实际密钥
     private static final long EXPIRATION_TIME = 86400000; // 24小时
 
     // 生成 Token

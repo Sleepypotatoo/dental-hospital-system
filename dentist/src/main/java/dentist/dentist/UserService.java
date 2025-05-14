@@ -3,7 +3,6 @@ package dentist.dentist;
 import lombok.extern.slf4j.Slf4j;
 import java.util.Optional; // 必须导入 java.util.Optional
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 //用户服务类，处理注册、登录、信息更新等业务逻辑
@@ -12,9 +11,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     // 患者注册
     public User registerPatient(User user, String verificationCode) {
@@ -29,9 +25,8 @@ public class UserService {
             user.setRole(RoleEnum.PATIENT.name());
             log.debug("设置用户角色为 PATIENT - 用户名: {}", user.getUsername());
             
-            String rawPassword = user.getPassword();
-            user.setPassword(bCryptPasswordEncoder.encode(rawPassword));
-            log.debug("密码加密完成 - 用户名: {}", user.getUsername());
+            // 直接保存用户输入的密码
+            log.debug("密码保存完成 - 用户名: {}", user.getUsername());
             
             User savedUser = userRepository.save(user);
             log.info("患者注册成功 - 用户ID: {}, 用户名: {}", savedUser.getId(), savedUser.getUsername());
@@ -59,9 +54,8 @@ public class UserService {
             user.setLicense(license);
             log.debug("设置医生执业证书 - 证书号: {}", license);
             
-            String rawPassword = user.getPassword();
-            user.setPassword(bCryptPasswordEncoder.encode(rawPassword));
-            log.debug("密码加密完成 - 用户名: {}", user.getUsername());
+            // 直接保存用户输入的密码
+            log.debug("密码保存完成 - 用户名: {}", user.getUsername());
             
             User savedUser = userRepository.save(user);
             log.info("医生注册成功 - 用户ID: {}, 用户名: {}", savedUser.getId(), savedUser.getUsername());
@@ -88,7 +82,8 @@ public class UserService {
             return null;
         }
 
-        if (bCryptPasswordEncoder.matches(password, user.getPassword())) {
+        // 直接比较明文密码
+        if (user.getPassword().equals(password)) {
             log.info("登录成功 - 用户ID: {}, 用户名: {}", user.getId(), username);
             return user;
         } else {

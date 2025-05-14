@@ -2,9 +2,6 @@ package dentist.dentist;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,9 +33,10 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
+    @GetMapping("/")
+    public String home() {
+        return "Welcome to Dental System!";
+    }
     // ========================== 患者注册接口 ==========================
     @PostMapping("/register/patient")
     @Operation(
